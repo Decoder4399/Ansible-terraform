@@ -1,0 +1,322 @@
+# Ansible Modules
+
+Modules are the **building blocks of Ansible**. They are the units that actually perform actions on the target servers.
+
+```text
+Playbook
+   ↓
+Tasks
+   ↓
+Modules
+   ↓
+Action on Server
+```
+
+Example:
+
+```yaml
+---
+- name: Install Git
+  hosts: servers
+  become: true
+
+  tasks:
+    - name: Install Git package
+      package:
+        name: git
+        state: present
+```
+
+In this example:
+
+* **Playbook** = Entire YAML file
+* **Task** = Install Git package
+* **Module** = `package`
+
+The `package` module performs the installation.
+
+---
+
+# Commonly Used Ansible Modules
+
+## 1. package
+
+Install packages:
+
+```yaml
+- name: Install Git
+  package:
+    name: git
+    state: present
+```
+
+Remove a package:
+
+```yaml
+- name: Remove Git
+  package:
+    name: git
+    state: absent
+```
+
+---
+
+## 2. service
+
+Manage services:
+
+```yaml
+- name: Start nginx
+  service:
+    name: nginx
+    state: started
+```
+
+Enable service on boot:
+
+```yaml
+- name: Enable nginx
+  service:
+    name: nginx
+    enabled: true
+```
+
+---
+
+## 3. copy
+
+Copy files from the Ansible control node to target servers:
+
+```yaml
+- name: Copy config file
+  copy:
+    src: app.conf
+    dest: /etc/app.conf
+```
+
+---
+
+## 4. file
+
+Create directories:
+
+```yaml
+- name: Create directory
+  file:
+    path: /tmp/demo
+    state: directory
+```
+
+Create files:
+
+```yaml
+- name: Create file
+  file:
+    path: /tmp/test.txt
+    state: touch
+```
+
+---
+
+## 5. command
+
+Run commands on remote hosts:
+
+```yaml
+- name: Check uptime
+  command: uptime
+```
+
+Capture output:
+
+```yaml
+- name: Check uptime
+  command: uptime
+  register: result
+
+- debug:
+    var: result.stdout
+```
+
+---
+
+## 6. shell
+
+Run shell commands that require shell features such as pipes or redirects:
+
+```yaml
+- name: Check memory
+  shell: free -m | grep Mem
+```
+
+> Use `command` whenever possible. Use `shell` only when shell features are required.
+
+---
+
+## 7. debug
+
+Print messages:
+
+```yaml
+- debug:
+    msg: "Hello World"
+```
+
+Print variable values:
+
+```yaml
+- debug:
+    var: ansible_facts['distribution']
+```
+
+---
+
+## 8. user
+
+Manage user accounts:
+
+```yaml
+- name: Create user
+  user:
+    name: ali
+    state: present
+```
+
+Add a user to the sudo group:
+
+```yaml
+- name: Create admin user
+  user:
+    name: ali
+    groups: wheel
+    append: yes
+```
+
+---
+
+## 9. reboot
+
+Reboot servers:
+
+```yaml
+- name: Reboot machine
+  reboot:
+    reboot_timeout: 600
+```
+
+---
+
+## 10. template
+
+Deploy dynamic configuration files using Jinja2 templates.
+
+Template file (`index.html.j2`):
+
+```html
+<h1>Server: {{ ansible_facts['hostname'] }}</h1>
+```
+
+Playbook task:
+
+```yaml
+- name: Deploy template
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+```
+
+---
+
+# Ad-hoc Commands Also Use Modules
+
+Ping hosts:
+
+```bash
+ansible servers -m ping
+```
+
+Uses the `ping` module.
+
+Gather facts:
+
+```bash
+ansible servers -m setup
+```
+
+Uses the `setup` module.
+
+Run a command:
+
+```bash
+ansible servers -m command -a "uptime"
+```
+
+Uses the `command` module.
+
+Manage a service:
+
+```bash
+ansible servers -m service -a "name=nginx state=started" -b
+```
+
+Uses the `service` module.
+
+---
+
+# Discover Available Modules
+
+List all modules:
+
+```bash
+ansible-doc -l
+```
+
+View module documentation:
+
+```bash
+ansible-doc package
+```
+
+Or:
+
+```bash
+ansible-doc ansible.builtin.package
+```
+
+---
+
+# Essential Modules for DevOps Engineers
+
+| Module   | Purpose                                   |
+| -------- | ----------------------------------------- |
+| package  | Install or remove packages                |
+| service  | Start, stop, restart services             |
+| copy     | Copy files                                |
+| template | Deploy dynamic configuration files        |
+| file     | Manage files and directories              |
+| command  | Run commands                              |
+| shell    | Run shell commands with pipes/redirection |
+| user     | Manage users                              |
+| reboot   | Reboot servers                            |
+| get_url  | Download files                            |
+| uri      | Call REST APIs                            |
+| git      | Clone repositories                        |
+| cron     | Manage scheduled jobs                     |
+| systemd  | Manage systemd services                   |
+
+---
+
+# Recommended Learning Order
+
+1. debug
+2. package
+3. service
+4. copy
+5. file
+6. command
+7. shell
+8. user
+9. reboot
+10. template
+
+These modules cover most day-to-day DevOps automation tasks and provide a strong foundation for learning advanced Ansible concepts such as Roles, Handlers, Vault, Dynamic Inventory, and Collections.
